@@ -1,46 +1,60 @@
 import * as esbuild from 'esbuild-wasm';
-import React, { useEffect, useState, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { fetchModulePlugin } from '../plugins/fetch-module-plugin';
+import { unpkgPathPlugin } from '../plugins/unpkg-path-plugin';
 import '../styles/App.css';
 
-function App() {
+const App = () => {
+  const ref = useRef<any>();
   const [inputCode, setInputCode] = useState('');
-  const [outputCode, setOutputCode] = useState('');
-  const serviceRef = useRef<any>();
+  const [code, setCode] = useState('');
 
-  const startEsbuild = async () => {
-    serviceRef.current = await esbuild.startService({
+  const startService = async () => {
+    ref.current = await esbuild.startService({
       worker: true,
-      wasmURL: '/esbuild.wasm',
+      wasmURL: 'https://unpkg.com/esbuild-wasm@0.8.27/esbuild.wasm',
     });
   };
-
   useEffect(() => {
-    startEsbuild();
+    startService();
   }, []);
-  const handleSubmit = async () => {
-    if (!serviceRef.current) {
+
+  const onClick = async () => {
+    if (!ref.current) {
       return;
     }
-    const transpiled = await serviceRef.current.transform(inputCode, {
-      loader: 'jsx',
-      target: 'es2015',
+
+    const result = await ref.current.build({
+      entryPoints: ['index.js'],
+      bundle: true,
+      write: false,
+      plugins: [unpkgPathPlugin(), fetchModulePlugin(inputCode)],
+      define: { 'process.env.NODE_ENV': '"production"', global: 'window' },
     });
 
-    setOutputCode(transpiled.code);
+    // console.log(result);
+
+    setCode(result.outputFiles[0].text);
+    try {
+      eval(result.outputFiles[0].text);
+    } catch (error) {
+      console.log(error);
+    }
   };
+
   return (
-    <div className='App'>
+    <div className='app'>
       <textarea
-        name='code'
-        id='code'
+        value={inputCode}
         onChange={(e) => setInputCode(e.target.value)}
       ></textarea>
       <div>
-        <button onClick={() => handleSubmit()}>Compile</button>
+        <button onClick={onClick} disabled={!inputCode}>
+          Submit
+        </button>
       </div>
-      <pre>{outputCode}</pre>
+      <pre>{code}</pre>
     </div>
   );
-}
-
+};
 export default App;
