@@ -6,6 +6,7 @@ import '../styles/App.css';
 
 const App = () => {
   const ref = useRef<any>();
+  const codePreview = useRef<any>();
   const [inputCode, setInputCode] = useState('');
   const [code, setCode] = useState('');
 
@@ -23,7 +24,7 @@ const App = () => {
     if (!ref.current) {
       return;
     }
-
+    codePreview.current.srcdoc = html;
     const result = await ref.current.build({
       entryPoints: ['index.js'],
       bundle: true,
@@ -31,16 +32,32 @@ const App = () => {
       plugins: [unpkgPathPlugin(), fetchModulePlugin(inputCode)],
       define: { 'process.env.NODE_ENV': '"production"', global: 'window' },
     });
-
-    // console.log(result);
-
-    setCode(result.outputFiles[0].text);
-    try {
-      eval(result.outputFiles[0].text);
-    } catch (error) {
-      console.log(error);
-    }
+    codePreview.current.contentWindow.postMessage(
+      result.outputFiles[0].text,
+      '*'
+    );
   };
+  const html = ` 
+  <html>
+    <head></head>
+    <body>
+      <div id="root"></div>
+      <script>
+        window.addEventListener('message', (e) => {
+          try{
+            eval(e.data);
+          } catch(err) {
+            const root = document.getElementById('root');
+            root.style.backgroundColor = '#333'
+            root.style.color = '#eee'
+            root.innerHTML = '<div style="padding: 1rem"><h4>Runtime Error</h4>'+ err +'</div>'
+            console.error(err);
+          }
+        }, false)
+      </script>
+    </body>
+  </html>
+  `;
 
   return (
     <div className='app'>
@@ -54,6 +71,13 @@ const App = () => {
         </button>
       </div>
       <pre>{code}</pre>
+      <iframe
+        ref={codePreview}
+        src='/test.html'
+        sandbox='allow-scripts'
+        srcDoc={html}
+        title='code-sandbox'
+      />
     </div>
   );
 };
