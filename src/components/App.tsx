@@ -3,12 +3,12 @@ import { useState, useEffect, useRef } from 'react';
 import { fetchModulePlugin } from '../plugins/fetch-module-plugin';
 import { unpkgPathPlugin } from '../plugins/unpkg-path-plugin';
 import '../styles/App.css';
+import CodeEditor from './CodeEditor';
 
 const App = () => {
   const ref = useRef<any>();
   const codePreview = useRef<any>();
   const [inputCode, setInputCode] = useState('');
-  const [code, setCode] = useState('');
 
   const startService = async () => {
     ref.current = await esbuild.startService({
@@ -65,12 +65,17 @@ const App = () => {
         value={inputCode}
         onChange={(e) => setInputCode(e.target.value)}
       ></textarea>
+      <CodeEditor
+        initialValue={'console.log(123)'}
+        onChange={(value: string) => {
+          setInputCode(value);
+        }}
+      />
       <div>
         <button onClick={onClick} disabled={!inputCode}>
           Submit
         </button>
       </div>
-      <pre>{code}</pre>
       <iframe
         ref={codePreview}
         src='/test.html'
