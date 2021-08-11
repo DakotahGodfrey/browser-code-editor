@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import '../styles/App.css';
 import CodeEditor from './CodeEditor';
 import CodePreview from './CodePreview';
@@ -8,11 +8,18 @@ import Resizable from './Resizable';
 const CodeCell = () => {
   const [inputCode, setInputCode] = useState('');
   const [outputCode, setOutputCode] = useState('');
+  const [error, setError] = useState('');
+  useEffect(() => {
+    const bundleTimer = setTimeout(async () => {
+      const result = await bundleCode(inputCode);
+      setOutputCode(result.code);
+      setError(result.error);
+    }, 1500);
+    return () => {
+      clearTimeout(bundleTimer);
+    };
+  }, [inputCode]);
 
-  const onClick = async () => {
-    const result = await bundleCode(inputCode);
-    setOutputCode(result);
-  };
   return (
     <Resizable direction={'y'}>
       <div style={{ height: '100%', display: 'flex', flexDirection: 'row' }}>
@@ -24,7 +31,7 @@ const CodeCell = () => {
             }}
           />
         </Resizable>
-        <CodePreview inputCode={outputCode} />
+        <CodePreview inputCode={outputCode} bundleStatus={error} />
       </div>
     </Resizable>
   );

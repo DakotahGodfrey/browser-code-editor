@@ -11,6 +11,8 @@ const Resizable: React.FC<ResizableProps> = ({ direction, children }) => {
   const [height, setHeight] = useState(0);
 
   useEffect(() => {
+    setWidth(window.innerWidth);
+    setHeight(window.innerHeight);
     let timer: any;
     const handleResize = () => {
       if (timer) {

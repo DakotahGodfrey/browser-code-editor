@@ -154,13 +154,39 @@ code {
   position: relative;
   height: 100%;
   flex-grow: 1;
+  overflow: hidden;
 }
 
 .preview-wrapper iframe {
   height: 100%;
   width: 100%;
   background-color: white;
-  overflow: hidden;
+}
+
+.preview-error {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+}
+.preview-error > div {
+  background-color: #eee;
+  color: red;
+  padding: 2rem;
+}
+.preview-error span {
+  display: block;
+  font-size: 1.8rem;
+  text-align: center;
+  width: 100%;
+  margin-bottom: 1rem;
 }
 
 .react-draggable-transparent-selection .preview-wrapper:after {
