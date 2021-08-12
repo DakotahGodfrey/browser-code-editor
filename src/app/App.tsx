@@ -1,15 +1,14 @@
 import CodeCell from '../components/CodeCell';
-import TextEditor from '../components/TextEditor';
-import { Provider } from 'react-redux';
-import { store } from './store';
+import Feed from '../components/Feed';
+
 const App = () => {
   return (
-    <Provider store={store}>
+    <>
       <div>
-        <TextEditor />
-        <CodeCell />
+        <Feed />
       </div>
-    </Provider>
+    </>
   );
 };
+
 export default App;

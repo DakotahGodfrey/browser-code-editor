@@ -1,10 +1,25 @@
 import MDEditor from '@uiw/react-md-editor';
 import { useState, useEffect, useRef } from 'react';
-
-const TextEditor = () => {
+import { useAppDispatch } from '../app/hooks/hooks';
+import { updateCell } from '../app/slices/cells';
+import { Cell } from '../app/types/Cell';
+interface TextEditorProps {
+  cell: Cell;
+}
+const TextEditor: React.FC<TextEditorProps> = ({ cell }) => {
   const editorRef = useRef<HTMLDivElement | null>(null);
-  const [value, setValue] = useState<any>('**Hello world!!!**');
   const [editMode, setEditMode] = useState(false);
+  const { id, content } = cell;
+  const dispatch = useAppDispatch();
+  const handleTextChange = (value: string) => {
+    dispatch(
+      updateCell({
+        id,
+        content: value,
+      })
+    );
+  };
+
   useEffect(() => {
     const handleEditModeClick = (e: MouseEvent) => {
       if (
@@ -23,10 +38,16 @@ const TextEditor = () => {
       });
     };
   }, []);
+
   if (editMode) {
     return (
       <div ref={editorRef} className='text-editor'>
-        <MDEditor value={value} onChange={setValue} />
+        <MDEditor
+          value={content}
+          onChange={(value) => {
+            handleTextChange(value || '');
+          }}
+        />
       </div>
     );
   }
@@ -36,7 +57,7 @@ const TextEditor = () => {
         setEditMode(true);
       }}
     >
-      <MDEditor.Markdown source={value} />
+      <MDEditor.Markdown source={content} />
     </section>
   );
 };

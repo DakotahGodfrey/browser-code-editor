@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import CellsReducer, { insertCell, updateCell } from '../slices/cells';
+import CellsReducer from './slices/cells';
 
 export const store = configureStore({
   reducer: { cells: CellsReducer },

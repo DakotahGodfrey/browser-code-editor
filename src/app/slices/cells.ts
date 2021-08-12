@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RootState } from '../app/store';
-import { Cell } from '../app/Cell';
+import { RootState } from '../store';
+import { Cell } from '../types/Cell';
 
 const randomID = () => Math.random().toString(36).substr(2, 5);
 
@@ -9,12 +9,12 @@ interface MoveCellAction {
   direction: 'up' | 'down';
 }
 interface InsertCellAction {
-  id: string | null;
+  id?: string | null;
+  content: string;
   type: 'code' | 'text';
 }
 interface UpdateCellAction {
   id: string;
-  type: 'code' | 'text';
   content: string;
 }
 interface DeleteCellAction {
@@ -49,7 +49,7 @@ const cellSlice = createSlice({
       const index = state.order.findIndex((id) => id === action.payload.id);
       const targetIndex =
         action.payload.direction === 'up' ? index - 1 : index + 1;
-      if (targetIndex < 0 || targetIndex > state.order.length) {
+      if (targetIndex < 0 || targetIndex >= state.order.length) {
         return;
       }
       state.order[index] = state.order[targetIndex];
@@ -57,7 +57,7 @@ const cellSlice = createSlice({
     },
     insertCell: (state, action: PayloadAction<InsertCellAction>) => {
       const cell: Cell = {
-        content: 'hello world!',
+        content: action.payload.content,
         type: action.payload.type,
         id: randomID(),
       };
