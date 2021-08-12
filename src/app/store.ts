@@ -1,8 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
 import CellsReducer from './slices/cells';
+import BundlesReducer from './slices/bundles';
 
 export const store = configureStore({
-  reducer: { cells: CellsReducer },
+  reducer: { cells: CellsReducer, bundles: BundlesReducer },
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
