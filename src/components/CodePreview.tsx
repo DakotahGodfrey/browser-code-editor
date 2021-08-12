@@ -41,7 +41,6 @@ const CodePreview: React.FC<PreviewProps> = ({ inputCode, bundleStatus }) => {
     }, 75);
   }, [inputCode]);
   if (bundleStatus) {
-    console.log(bundleStatus);
   }
   return (
     <div className='preview-wrapper'>

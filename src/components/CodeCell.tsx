@@ -5,32 +5,45 @@ import CodePreview from './CodePreview';
 import bundleCode from '../esbuildBundler';
 import Resizable from './Resizable';
 import { Cell } from '../app/types/Cell';
-import { useAppDispatch } from '../app/hooks/hooks';
+import { useAppDispatch, useAppSelector } from '../app/hooks/hooks';
 import { updateCell } from '../app/slices/cells';
+import {
+  bundleStart,
+  bundleEnd,
+  createBundle,
+  selectBundles,
+} from '../app/slices/bundles';
 
 interface CodeCellProps {
   cell: Cell;
 }
 const CodeCell: React.FC<CodeCellProps> = ({ cell }) => {
-  const [outputCode, setOutputCode] = useState('');
-  const [error, setError] = useState('');
   const { id, content } = cell;
   const dispatch = useAppDispatch();
-
+  const bundle = useAppSelector(selectBundles);
+  const { data } = bundle;
+  const { loading } = data[id];
   const handleInputChange = (value: string) => {
     dispatch(updateCell({ id, content: value }));
   };
 
   useEffect(() => {
+    const createBundleAsync = async () => {
+      dispatch(bundleStart({ id }));
+      await dispatch(createBundle({ id, inputCode: content }));
+      dispatch(bundleEnd({ id }));
+    };
+
+    if (!bundle) {
+      createBundleAsync();
+    }
     const bundleTimer = setTimeout(async () => {
-      const result = await bundleCode(content);
-      setOutputCode(result.code);
-      setError(result.error);
+      createBundleAsync();
     }, 1500);
     return () => {
       clearTimeout(bundleTimer);
     };
-  }, [content]);
+  }, [content, dispatch, id]);
 
   return (
     <Resizable direction={'y'}>
@@ -47,7 +60,19 @@ const CodeCell: React.FC<CodeCellProps> = ({ cell }) => {
             onChange={(value) => handleInputChange(value)}
           />
         </Resizable>
-        <CodePreview inputCode={outputCode} bundleStatus={error} />
+        {!bundle || loading ? (
+          <div className='progress-cover'>
+            <progress
+              className='progress is-small is-primary'
+              max='100'
+            ></progress>
+          </div>
+        ) : (
+          <CodePreview
+            inputCode={data[id]?.code ?? ''}
+            bundleStatus={data[id]?.error ?? ''}
+          />
+        )}
       </div>
     </Resizable>
   );

@@ -2,6 +2,7 @@ import React from 'react';
 import { useAppSelector, useAppDispatch } from '../app/hooks/hooks';
 import { insertCell, selectCells } from '../app/slices/cells';
 import AddCell from './AddCell';
+import CodeCell from './CodeCell';
 import FeedCell from './FeedCell';
 
 const Feed: React.FC = () => {
@@ -23,16 +24,18 @@ const Feed: React.FC = () => {
       })
     );
   };
-  console.log(order);
   return (
     <main>
       <AddCell nextCellId={null} />
-      {sortedCells.map((cell) => (
-        <>
-          <FeedCell cell={cell} />
-          <AddCell nextCellId={cell.id} />
-        </>
-      ))}
+      {sortedCells.map((cell) => {
+        const targetIndex = order.findIndex((id) => id === cell.id) + 1;
+        return (
+          <>
+            <FeedCell cell={cell} />
+            <AddCell nextCellId={order[targetIndex]} />
+          </>
+        );
+      })}
     </main>
   );
 };

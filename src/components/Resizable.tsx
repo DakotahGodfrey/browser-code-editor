@@ -42,7 +42,6 @@ const Resizable: React.FC<ResizableProps> = ({ direction, children }) => {
       minConstraints: [width * 0.2, Infinity],
       maxConstraints: [width * 0.8, Infinity],
       onResizeStop: (event, data) => {
-        console.log(data);
         setBoxWidth(data.size.width);
       },
     };
